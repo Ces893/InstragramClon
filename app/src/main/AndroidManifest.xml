@@ -21,9 +21,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Actividad para los comentarios -->
+        <activity
+            android:name=".Activity.ComentsActivity"
+            android:exported="false" />
+
+        <!-- Meta-datos adicionales -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
     </application>
 
 </manifest>
