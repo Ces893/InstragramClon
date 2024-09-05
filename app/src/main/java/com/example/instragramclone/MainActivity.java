@@ -1,6 +1,9 @@
 package com.example.instragramclone;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.instragramclone.activity.ComentsActivity;
 import com.example.instragramclone.adapter.PostAdapter;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;

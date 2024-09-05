@@ -1,10 +1,10 @@
 package com.example.instragramclone.adapter;
 
-import android.graphics.drawable.Drawable;
-import android.provider.ContactsContract;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instragramclone.R;
+import com.example.instragramclone.activity.ComentsActivity;
 import com.example.instragramclone.clases.Post;
 
 import java.text.SimpleDateFormat;
@@ -65,6 +66,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         imgPost.setImageResource(imgResoursePost);
         imgUser.setImageResource(imgResourseUser);
+
+        ImageButton imgButton = view.findViewById(R.id.bottomComentario);
+        imgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), ComentsActivity.class);
+                intent.putExtra("postid", "1");
+                intent.putExtra("publisherid", "2");
+                view.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
