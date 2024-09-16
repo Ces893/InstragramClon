@@ -1,7 +1,7 @@
 package com.example.instragramclone.clases;
 
 public class User {
-    public int userId;
+    public int id;
     public String userName;
     public String imgUser;
 

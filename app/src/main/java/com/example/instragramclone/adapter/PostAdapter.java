@@ -61,6 +61,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         descrip.setText(item.description);
         hora.setText("Publicado el "+formatDate);
 
+
         int imgResoursePost = view.getContext().getResources().getIdentifier(item.imgUrl,"drawable", view.getContext().getPackageName());
         int imgResourseUser = view.getContext().getResources().getIdentifier(item.userName.imgUser,"drawable", view.getContext().getPackageName());
 
