@@ -32,6 +32,9 @@ public class SearchFragment extends Fragment {
     private SearchAdapter searchAdapter;
     private List<User> users = new ArrayList<>();
 
+    private PostAdapter postAdapter;
+    private List<Post> posts = new ArrayList<>();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
@@ -57,6 +60,21 @@ public class SearchFragment extends Fragment {
                 Log.e("MAIN_APP", throwable.getMessage());
             }
         });
+
+        service.getAllPost().enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                if (response.isSuccessful()){
+                    posts.addAll(response.body());
+                    postAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable throwable) {
+                Log.e("MAIN_APP", throwable.getMessage());
+            }
+        });
         setUpRecyclerView(view);
         return view;
     }
@@ -79,19 +97,32 @@ public class SearchFragment extends Fragment {
 //        users.add(user5);
 
         searchAdapter = new SearchAdapter(users);
+        postAdapter = new PostAdapter(posts);
+
         rvContentSearch.setAdapter(searchAdapter);
 
         SearchView searchView = view.findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchAdapter.filter(query);
+                if(query.startsWith("#")) {
+                    postAdapter.filter(query.substring(1));
+                } else {
+                    searchAdapter.filter(query);
+                }
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String text) {
-                searchAdapter.filter(text);
+                if(text.startsWith("#")){
+                    rvContentSearch.setAdapter(postAdapter);
+                    postAdapter.filter(text.substring(1));
+                }
+                else {
+                    rvContentSearch.setAdapter(searchAdapter);
+                    searchAdapter.filter(text);
+                }
                 return false;
             }
         });

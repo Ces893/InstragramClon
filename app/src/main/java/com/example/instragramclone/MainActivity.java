@@ -1,5 +1,6 @@
 package com.example.instragramclone;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.instragramclone.activity.CreatePostActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -47,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(new HomeFragment(), false);
                 }else if (itemId == R.id.search){
                     loadFragment(new SearchFragment(), false);
+                }else if(itemId == R.id.add){
+                    Intent intent = new Intent(MainActivity.this, CreatePostActivity.class);
+                    startActivity(intent);
                 }
 
                 return true;
