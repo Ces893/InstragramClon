@@ -24,21 +24,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/btnTakePhoto"
-                    android:text="Tomar Foto"
+                <TextView
+                    android:id="@+id/txtPublicacion"
                     android:layout_width="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="20dp"
+                    android:layout_centerVertical="true"
+                    android:text="Nueva Publicacion"/>
 
-                <Button
+                <ImageButton
+                    android:id="@+id/btnTakePhoto"
+                    android:src="@drawable/outline_photo_camera_24"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/roundimgbtn"
+                    android:layout_height="wrap_content"
+                    />
+
+                <ImageButton
                     android:id="@+id/btnChoosePhoto"
-                    android:text="Seleccionar Foto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="5dp"
-                    android:layout_toEndOf="@+id/btnTakePhoto"/>
+                    android:layout_marginEnd="1dp"
+                    android:background="@drawable/roundimgbtn"
+                    android:src="@drawable/outline_perm_media_24"
+                    android:layout_toStartOf="@+id/btnTakePhoto"/>
 
 
             </RelativeLayout>
@@ -56,19 +70,21 @@
             android:layout_height="400dp"
             android:scaleType="centerCrop"
             android:layout_gravity="center"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/baseline_add_photo_alternate_24"
             android:id="@+id/ivPhoto"/>
 
         <EditText
             android:id="@+id/tvDescripcion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Descripcion"
             android:layout_marginTop="15dp"/>
 
         <EditText
             android:id="@+id/tvEtiqueta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Etiqueta / Hashtag"
             android:layout_marginTop="15dp"/>
 
         <Button
@@ -77,7 +93,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="16dp"
-            android:layout_margin="10dp"
+            android:layout_marginTop="30dp"
             android:text="Publicar"
             />
 

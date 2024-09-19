@@ -17,6 +17,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:queryHint="Buscar ..."
+            android:iconifiedByDefault="false"
+            android:textColorHint="@color/black"
             />
 
         <androidx.recyclerview.widget.RecyclerView

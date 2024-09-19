@@ -14,6 +14,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -90,14 +91,14 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void setUpBtnChoosePhoto() {
-        Button btnChoosePhoto = findViewById(R.id.btnChoosePhoto);
+        ImageButton btnChoosePhoto = findViewById(R.id.btnChoosePhoto);
         btnChoosePhoto.setOnClickListener(view -> {
             openPhotoGallery();
         });
     }
 
     private void setUpBtnTakePhoto() {
-        Button btnTakePhoto = findViewById(R.id.btnTakePhoto);
+        ImageButton btnTakePhoto = findViewById(R.id.btnTakePhoto);
         btnTakePhoto.setOnClickListener(view -> {
             // preguntar si tiene permisos para abrir la camara
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
