@@ -65,7 +65,7 @@ public class CreatePostActivity extends AppCompatActivity {
             return insets;
         });
 
-        FirebaseApp.initializeApp(this);
+        //FirebaseApp.initializeApp(this);
         setUpBtnChoosePhoto();
         setUpBtnTakePhoto();
 

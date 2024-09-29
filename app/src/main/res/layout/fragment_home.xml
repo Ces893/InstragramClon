@@ -30,13 +30,11 @@
                     tools:layout_editor_absoluteX="16dp"
                     tools:layout_editor_absoluteY="13dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/aladin"
-                        android:text="Instagram"
-                        android:textSize="30sp"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="55dp"
+                        android:src="@drawable/instagram_oscuro"
+                        />
 
                 </LinearLayout>
 

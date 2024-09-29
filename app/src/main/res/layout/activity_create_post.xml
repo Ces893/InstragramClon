@@ -93,6 +93,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="16dp"
+            android:backgroundTint="#2196F3"
             android:layout_marginTop="30dp"
             android:text="Publicar"
             />
