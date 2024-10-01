@@ -8,9 +8,9 @@
     tools:context=".activity.PerfilActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="570dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,10 +45,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="40dp"
-            android:textSize="20dp"
             android:backgroundTint="#F21313"
             android:text="Log Out"
-            />
+            android:textSize="20dp" />
     </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPostsUserP"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        android:orientation="horizontal"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,6 +17,9 @@ import com.example.instragramclone.adapter.SearchAdapter;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
 import com.example.instragramclone.service.ApiService;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,46 +38,49 @@ public class SearchFragment extends Fragment {
     private PostAdapter postAdapter;
     private List<Post> posts = new ArrayList<>();
 
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://66e47472d2405277ed145ab4.mockapi.io")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        CollectionReference userCollection = firestore.collection("users");
+        userCollection.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
 
-        ApiService service = retrofit.create(ApiService.class);
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            User user = document.toObject(User.class);
 
-        service.getAll().enqueue(new Callback<List<User>>() {
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                if (response.isSuccessful()){
-                    users.addAll(response.body());
-                    searchAdapter.notifyDataSetChanged();
-                }
-            }
+                            users.add(user);
+                        }
+                        searchAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.d("Firestore", "No se encontraron posts.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al obtener los posts", e);
+                });
 
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable throwable) {
-                Log.e("MAIN_APP", throwable.getMessage());
-            }
-        });
+        CollectionReference postCollection = firestore.collection("posts");
+        postCollection.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
 
-        service.getAllPost().enqueue(new Callback<List<Post>>() {
-            @Override
-            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
-                if (response.isSuccessful()){
-                    posts.addAll(response.body());
-                    postAdapter.notifyDataSetChanged();
-                }
-            }
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            Post post = document.toObject(Post.class);
 
-            @Override
-            public void onFailure(Call<List<Post>> call, Throwable throwable) {
-                Log.e("MAIN_APP", throwable.getMessage());
-            }
-        });
+                            posts.add(post);
+                        }
+                        postAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.d("Firestore", "No se encontraron posts.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al obtener los posts", e);
+                });
         setUpRecyclerView(view);
         return view;
     }
@@ -82,19 +88,6 @@ public class SearchFragment extends Fragment {
     private void setUpRecyclerView(View view) {
         RecyclerView rvContentSearch = view.findViewById(R.id.rvContentSearch);
         rvContentSearch.setLayoutManager(new LinearLayoutManager(getContext()));
-
-//        //User userId, String imgUrl, String description
-//        User user = new User("ABD","usuario4");
-//        User user2 = new User("YUH","usuario2");
-//        User user3 = new User("KIL","usuario3");
-//        User user4 = new User("DFG","usuario4");
-//        User user5 = new User("GAB","usuario4");
-//
-//        users.add(user);
-//        users.add(user2);
-//        users.add(user3);
-//        users.add(user4);
-//        users.add(user5);
 
         searchAdapter = new SearchAdapter(users);
         postAdapter = new PostAdapter(posts);

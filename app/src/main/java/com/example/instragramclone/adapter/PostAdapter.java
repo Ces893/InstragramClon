@@ -1,6 +1,7 @@
 package com.example.instragramclone.adapter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,14 +10,23 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instragramclone.R;
 import com.example.instragramclone.activity.ComentsActivity;
+import com.example.instragramclone.activity.PerfilActivity;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -30,10 +40,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private List<Post> filteredData;
     private List<Post> data;
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firestore;
 
     public PostAdapter(List<Post> data) {
         this.data = data;  // Guarda la lista original
         this.filteredData = new ArrayList<>(data);
+        this.firestore = FirebaseFirestore.getInstance();
     }
 
     public void setData(List<Post> newData) {
@@ -72,7 +85,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd 'de' MMMM", Locale.getDefault());
         String formatDate = dateFormat.format(item.publicacionDate);
 
-        userpost.setText(item.userName.userName);
+        userpost.setText(item.userId);
         contMegusta.setText(""+item.likeCount);
         contComet.setText(Integer.toString(item.commentsCount));
         descrip.setText(item.description);
@@ -84,11 +97,24 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 .error(R.drawable.ic_launcher_background) // Imagen si hay error
                 .into(imgPost); // ImageView donde se mostrará la imagen
 
-        Picasso.get()
-                .load(item.userName.imgUser) // URL de la imagen obtenida de la API
-                .placeholder(R.drawable.ic_rounded_account_circle_24) // Imagen predeterminada mientras carga
-                .error(R.drawable.ic_launcher_background) // Imagen si hay error
-                .into(imgUser); // ImageView donde se mostrará la imagen
+        String uid = item.userId;
+        DocumentReference documentReference = firestore.collection("users").document(uid);
+        documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    User user = documentSnapshot.toObject(User.class);
+                    userpost.setText(user.getUserName());
+                    Picasso.get()
+                            .load(user.getImgUser()) // URL de la imagen obtenida de la API
+                            .placeholder(R.drawable.ic_rounded_account_circle_24) // Imagen predeterminada mientras carga
+                            .error(R.drawable.ic_launcher_background) // Imagen si hay error
+                            .into(imgUser); // ImageView donde se mostrará la imagen
+                } else {
+                    Log.d("Firestore", "No se encontró el documento del usuario.");
+                }
+            }
+        });
 
 
         ImageButton imgButton = view.findViewById(R.id.bottomComentario);

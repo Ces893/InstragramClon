@@ -96,7 +96,7 @@ public class RegisterActivity extends AppCompatActivity {
                             });
 
                             String uid = firebaseAuth.getCurrentUser().getUid();
-                            User user = new User(uid,userN,email,pass,nombre,"https://firebasestorage.googleapis.com/v0/b/instagramclone-21e5f.appspot.com/o/defaultuserIMG.jpg?alt=media&token=da6edbe3-c0d0-45c9-877e-073f402ddbaf","");
+                            User user = new User(userN,email,pass,nombre,"https://firebasestorage.googleapis.com/v0/b/instagramclone-21e5f.appspot.com/o/defaultuserIMG.jpg?alt=media&token=da6edbe3-c0d0-45c9-877e-073f402ddbaf","");
                             DocumentReference documentReference = firestore.collection("users").document(uid);
                             documentReference.set(user);
                         }

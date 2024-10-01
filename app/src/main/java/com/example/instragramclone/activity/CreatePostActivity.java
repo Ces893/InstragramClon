@@ -32,6 +32,10 @@ import com.example.instragramclone.service.ApiService;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -52,6 +56,8 @@ public class CreatePostActivity extends AppCompatActivity {
     ImageView ivPhoto;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     Uri imageUri;
 
     @Override
@@ -78,9 +84,9 @@ public class CreatePostActivity extends AppCompatActivity {
         btnSubir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if(imageUri != null){
                     subirImagenFirebase(imageUri, tvDes.getText().toString(),tvEtiqueta.getText().toString());
+                    finish();
                 }else {
                     Toast.makeText(CreatePostActivity.this,"Error", Toast.LENGTH_SHORT).show();
                 }
@@ -129,7 +135,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        enviarApi(uri.toString(),descrip,etiqueta);
+                        enviarFireStore(uri.toString(),descrip,etiqueta);
                         Toast.makeText(CreatePostActivity.this,"Subido", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -160,36 +166,23 @@ public class CreatePostActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
-    private void enviarApi(String urlImagen, String descrpcion, String etiqueta){
+    private void enviarFireStore(String urlImagen, String descrpcion, String etiqueta){
 
-        User user = new User("ABD", urlImagen);
-        Post post = new Post(user, descrpcion, 0, 3, urlImagen, "#"+ etiqueta);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://66e47472d2405277ed145ab4.mockapi.io")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        ApiService service = retrofit.create(ApiService.class);
-        service.create(post).enqueue(new Callback<Post>() {
-            @Override
-            public void onResponse(Call<Post> call, Response<Post> response) {
-                Log.i("MAIN_APP", String.valueOf(response.code()));
+        String uid = firebaseAuth.getCurrentUser().getUid();
 
-                if (response.isSuccessful()) {
+        CollectionReference postCollection = firestore.collection("posts");
+        //Post(String id, String user, String description, int likeCount, int commentsCount, String imgUrl, String etiqueta)
+        DocumentReference newPostRef = firestore.collection("posts").document();
+        String postId = newPostRef.getId();
+        Post post = new Post(uid, descrpcion, 0, 0, urlImagen, "#"+etiqueta);
 
-                    Post newPost = response.body();
-
-                    Intent intent = getIntent();
-                    intent.putExtra("POST", new Gson().toJson(newPost));
-
-                    setResult(100, intent);
-                    finish();
-                }
-            }
-            @Override
-            public void onFailure(Call<Post> call, Throwable throwable) {
-                Log.e("MAIN_APP", throwable.getMessage());
-            }
-        });
+        newPostRef.set(post)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Post creado con ID: " + postId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al crear el post", e);
+                });
     }
 
     @Override
