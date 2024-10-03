@@ -16,11 +16,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.instragramclone.activity.CreatePostActivity;
-import com.example.instragramclone.activity.PerfilActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,8 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, CreatePostActivity.class);
                     startActivity(intent);
                 }else if(itemId == R.id.perfil){
-                    Intent intent = new Intent(MainActivity.this, PerfilActivity.class);
-                    startActivity(intent);
+                    loadFragment(new PerfilFragment(), false);
                 }
 
                 return true;

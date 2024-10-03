@@ -1,13 +1,20 @@
 package com.example.instragramclone.adapter;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.instragramclone.AllMyPostsFragment;
 import com.example.instragramclone.R;
 import com.example.instragramclone.clases.Post;
 import com.squareup.picasso.Picasso;
@@ -17,9 +24,11 @@ import java.util.List;
 public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyPostViewHolder>{
 
     private List<Post> data;
+    private Context context;
 
-    public MyPostAdapter(List<Post> data) {
+    public MyPostAdapter(List<Post> data,Context context ) {
         this.data = data;
+        this.context = context;
     }
 
     @NonNull
@@ -44,6 +53,18 @@ public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.MyPostView
                 .placeholder(R.drawable.ic_rounded_account_circle_24)
                 .error(R.drawable.ic_launcher_background)
                 .into(imgPost);
+
+        imgPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AllMyPostsFragment allMyPostsFragment = new AllMyPostsFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("userId",item.getUserId());
+                allMyPostsFragment.setArguments(bundle);
+
+                ((FragmentActivity) context).getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, allMyPostsFragment).addToBackStack(null).commit();
+            }
+        });
     }
 
     @Override

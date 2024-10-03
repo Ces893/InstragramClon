@@ -1,28 +1,26 @@
-package com.example.instragramclone.activity;
+package com.example.instragramclone;
 
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.instragramclone.R;
+import com.example.instragramclone.activity.LoginActivity;
 import com.example.instragramclone.adapter.MyPostAdapter;
-import com.example.instragramclone.adapter.PostAdapter;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,30 +38,25 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.http.POST;
-
-public class PerfilActivity extends AppCompatActivity {
+public class PerfilFragment extends Fragment {
 
     FirebaseAuth firebaseAuth;
     FirebaseFirestore firestore;
     private MyPostAdapter adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_perfil);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_perfil, container, false);
 
-        ImageView userImage = findViewById(R.id.userImage);
-        TextView userName = findViewById(R.id.userName);
-        TextView fullName = findViewById(R.id.fullName);
 
-        Button btnLogOut = findViewById(R.id.btnLogOut);
+        ImageView userImage = view.findViewById(R.id.userImage);
+        TextView userName = view.findViewById(R.id.userName);
+        TextView fullName = view.findViewById(R.id.fullName);
+        TextView postNum = view.findViewById(R.id.postsCount);
+
+        Button btnLogOut = view.findViewById(R.id.btnLogOut);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -71,31 +64,36 @@ public class PerfilActivity extends AppCompatActivity {
         // Info User //
         String uid = firebaseAuth.getCurrentUser().getUid();
         DocumentReference documentReference = firestore.collection("users").document(uid);
-        documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+        documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if(documentSnapshot.exists()){
+                if (error != null) {
+                    Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
                     User user = documentSnapshot.toObject(User.class);
-                    userName.setText(user.userName);
-                    fullName.setText(user.nombre);
+                    if (user != null) {
+                        userName.setText(user.getUserName());
+                        fullName.setText(user.getNombre());
 
-                    Picasso.get()
-                            .load(user.imgUser) // URL de la imagen obtenida de la API
-                            .placeholder(R.drawable.ic_rounded_account_circle_24) // Imagen predeterminada mientras carga
-                            .error(R.drawable.ic_launcher_background) // Imagen si hay error
-                            .into(userImage); // ImageView donde se mostrará la imagen
-                }else {
-                    Toast.makeText(PerfilActivity.this,"Error!",Toast.LENGTH_SHORT).show();
+                        Picasso.get()
+                                .load(user.getImgUser())
+                                .placeholder(R.drawable.ic_rounded_account_circle_24)
+                                .error(R.drawable.ic_launcher_background)
+                                .into(userImage);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Error: El usuario no existe", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         // Posts //
-
-        RecyclerView rvPosts = findViewById(R.id.rvPostsUserP);
+        RecyclerView rvPosts = view.findViewById(R.id.rvPostsUserP);
         rvPosts.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager = new GridLayoutManager(PerfilActivity.this,3);
-        rvPosts.setLayoutManager(linearLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),3);
+        rvPosts.setLayoutManager(gridLayoutManager);
 
         firestore.collection("posts")
                 .whereEqualTo("userId", uid)
@@ -109,24 +107,29 @@ public class PerfilActivity extends AppCompatActivity {
                                 Post post = documentSnapshot.toObject(Post.class);
                                 postsUsuario.add(post);
                             }
-
-                            // Configurar el adapter con los datos obtenidos
-                            adapter = new MyPostAdapter(postsUsuario);
+                            adapter = new MyPostAdapter(postsUsuario,getContext());
                             rvPosts.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();  // Notificar al adapter que los datos han cambiado
+                            //
+                            int numPosts = postsUsuario.size();
+                            postNum.setText(String.valueOf(numPosts));
+                            //
+                            adapter.notifyDataSetChanged();
                         } else {
                             Log.w("Firestore", "Error al obtener los posts", task.getException());
                         }
                     }
                 });
 
+
+
         btnLogOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                finish();
+                startActivity(new Intent(getContext(), LoginActivity.class));
+                //finish();
             }
         });
+        return view;
     }
 }

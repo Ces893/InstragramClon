@@ -12,11 +12,6 @@ public class User {
     public User() {
     }
 
-    public User(String userName, String imgUser) {
-        this.userName = userName;
-        this.imgUser = imgUser;
-    }
-
     public User(String userName, String email, String pass, String nombre, String imgUser,String bio) {
         this.userName = userName;
         this.email = email;

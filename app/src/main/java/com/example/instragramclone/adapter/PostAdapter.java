@@ -1,7 +1,6 @@
 package com.example.instragramclone.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instragramclone.R;
 import com.example.instragramclone.activity.ComentsActivity;
-import com.example.instragramclone.activity.PerfilActivity;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,16 +28,13 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder>{
 
     private List<Post> filteredData;
     private List<Post> data;
-    FirebaseAuth firebaseAuth;
     FirebaseFirestore firestore;
 
     public PostAdapter(List<Post> data) {
@@ -79,6 +73,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView contComet = view.findViewById(R.id.countComentarios);
         TextView descrip = view.findViewById(R.id.descripcionPost);
         TextView hora = view.findViewById(R.id.horaPost);
+        TextView nombreUser = view.findViewById(R.id.nombreUsuario);
         ImageView imgPost = view.findViewById(R.id.imgPost);
         ImageView imgUser = view.findViewById(R.id.imgUser);
 
@@ -105,6 +100,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 if (documentSnapshot != null && documentSnapshot.exists()) {
                     User user = documentSnapshot.toObject(User.class);
                     userpost.setText(user.getUserName());
+                    nombreUser.setText(user.getUserName());
                     Picasso.get()
                             .load(user.getImgUser()) // URL de la imagen obtenida de la API
                             .placeholder(R.drawable.ic_rounded_account_circle_24) // Imagen predeterminada mientras carga

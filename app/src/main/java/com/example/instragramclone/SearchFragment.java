@@ -16,19 +16,12 @@ import com.example.instragramclone.adapter.PostAdapter;
 import com.example.instragramclone.adapter.SearchAdapter;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
-import com.example.instragramclone.service.ApiService;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SearchFragment extends Fragment {
 

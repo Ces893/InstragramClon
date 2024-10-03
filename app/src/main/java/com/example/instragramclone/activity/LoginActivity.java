@@ -2,9 +2,12 @@ package com.example.instragramclone.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -29,8 +32,10 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText etPassLog, etCorreoLog;
     Button btnCreateLog, btnInicioS;
+    ImageView passIcon;
     FirebaseAuth firebaseAuth;
 
+    private boolean passShow = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +52,7 @@ public class LoginActivity extends AppCompatActivity {
 
         btnCreateLog = findViewById(R.id.btnCrearCuentaAct);
         btnInicioS = findViewById(R.id.btnInicioS);
+        passIcon = findViewById(R.id.passIcon);
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -75,6 +81,24 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+            }
+        });
+
+        passIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(passShow){
+                    passShow = false;
+                    etPassLog.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    passIcon.setImageResource(R.drawable.outline_remove_red_eye_24);
+                }
+                else {
+                    passShow = true;
+                    etPassLog.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    passIcon.setImageResource(R.drawable.outline_visibility_off_24);
+                }
+
+                etPassLog.setSelection(etPassLog.length());
             }
         });
 
