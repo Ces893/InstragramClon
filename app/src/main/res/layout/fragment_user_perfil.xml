@@ -4,7 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".PerfilFragment">
+    tools:context=".UserPerfilFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginStart="10dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/baseline_keyboard_backspace_24" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="50dp"
+                android:layout_centerVertical="true"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:id="@+id/txUserName"/>
+        </RelativeLayout>
+    </LinearLayout>
 
     <!-- Layout para la parte superior con imagen y estadísticas -->
     <LinearLayout
@@ -12,17 +41,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginTop="40dp"
         android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Imagen de perfil -->
         <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/myUserImage"
+            android:id="@+id/userImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            app:civ_border_color="#F8F8F8"
             android:layout_gravity="center"
             android:scaleType="centerCrop"
+            app:civ_border_color="#F8F8F8"
             app:civ_border_width="2dp" />
 
         <!-- Sección de estadísticas y nombre -->
@@ -34,7 +64,7 @@
 
             <!-- Nombre de usuario -->
             <TextView
-                android:id="@+id/myUserName"
+                android:id="@+id/userName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -42,7 +72,7 @@
                 android:textStyle="bold" />
             <!-- Nombre completo -->
             <TextView
-                android:id="@+id/myfullName"
+                android:id="@+id/fullName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -52,18 +82,18 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginTop="8dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/myPostsCount"
+                        android:id="@+id/postsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
@@ -77,15 +107,17 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linelySeguidores"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:clickable="true">
 
                     <TextView
-                        android:id="@+id/myfollowersCount"
+                        android:id="@+id/followersCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
@@ -100,13 +132,15 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linerlySeguidos"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    android:clickable="true">
 
                     <TextView
-                        android:id="@+id/myfollowingCount"
+                        android:id="@+id/followingCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
@@ -122,7 +156,7 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/btnLogOut"
+                android:id="@+id/btnLogOutUser"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -131,18 +165,14 @@
                 android:text="Log Out"
                 android:textSize="14sp"
                 android:textColor="#000000"/>
-
         </LinearLayout>
-
-
     </LinearLayout>
 
-    <!-- Botones de editar perfil y compartir perfil rediseñados -->
     <LinearLayout
         android:id="@+id/linearLayout5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="240dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -171,14 +201,36 @@
             android:textColor="#000000" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/linearLayoutUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="240dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btnFollow"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#14A7F0"
+            android:padding="10dp"
+            android:text="Follow"
+            android:textColor="#000000" />
+
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/myrvPostsUserP"
+        android:id="@+id/rvPostsUserP"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayout5" />
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutUser" />
 
 </FrameLayout>

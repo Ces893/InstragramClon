@@ -15,7 +15,8 @@ public class Post {
 
     public Post(){}
 
-    public Post(String user, String description, int likeCount, int commentsCount, String imgUrl, String etiqueta) {
+    public Post(String postId,String user, String description, int likeCount, int commentsCount, String imgUrl, String etiqueta) {
+        this.postId = postId;
         this.userId = user;
         this.imgUrl = imgUrl;
         this.description = description;

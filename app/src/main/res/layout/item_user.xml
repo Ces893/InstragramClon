@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clickable="true"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
@@ -23,6 +24,7 @@
                 android:layout_height="50dp"
                 android:layout_margin="5dp"
                 app:civ_border_color="#B74DFA"
+                android:clickable="true"
                 app:civ_border_width="2dp" />
 
             <TextView
@@ -32,8 +34,16 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/imgUser" />
 
+            <Button
+                android:id="@+id/btnSeguido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="Seguir"
+                android:layout_centerVertical="true"
+                android:backgroundTint="#2196F3"
+                android:layout_marginEnd="10dp">
+            </Button>
         </RelativeLayout>
-
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

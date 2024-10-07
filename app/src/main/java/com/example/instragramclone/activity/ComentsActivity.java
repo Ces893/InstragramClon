@@ -29,7 +29,7 @@ public class ComentsActivity extends AppCompatActivity {
     String punlisherid;
 
     List<String> commentsList;
-    ComentsAdapter commentsAdapter;  // Declarar la instancia del adaptador aquí
+    ComentsAdapter commentsAdapter;
     RecyclerView recyclerView;
 
     @Override

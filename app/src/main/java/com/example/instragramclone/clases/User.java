@@ -1,5 +1,7 @@
 package com.example.instragramclone.clases;
 
+import java.util.List;
+
 public class User {
     public String id;
     public String userName;
@@ -8,11 +10,14 @@ public class User {
     public String nombre;
     public String imgUser;
     public String bio;
+    //public List<String> usersFollowers;
+    //public List<String> usersFollowing;
 
     public User() {
     }
 
-    public User(String userName, String email, String pass, String nombre, String imgUser,String bio) {
+    public User(String id,String userName, String email, String pass, String nombre, String imgUser,String bio) {
+        this.id = id;
         this.userName = userName;
         this.email = email;
         this.pass = pass;

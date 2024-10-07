@@ -174,7 +174,7 @@ public class CreatePostActivity extends AppCompatActivity {
         //Post(String id, String user, String description, int likeCount, int commentsCount, String imgUrl, String etiqueta)
         DocumentReference newPostRef = firestore.collection("posts").document();
         String postId = newPostRef.getId();
-        Post post = new Post(uid, descrpcion, 0, 0, urlImagen, "#"+etiqueta);
+        Post post = new Post(postId,uid, descrpcion, 0, 0, urlImagen, "#"+etiqueta);
 
         newPostRef.set(post)
                 .addOnSuccessListener(aVoid -> {

@@ -10,12 +10,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.instragramclone.adapter.PostAdapter;
 import com.example.instragramclone.adapter.SearchAdapter;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,69 +36,67 @@ public class SearchFragment extends Fragment {
     private List<Post> posts = new ArrayList<>();
 
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    Boolean showbtn = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-        CollectionReference userCollection = firestore.collection("users");
-        userCollection.get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
 
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            User user = document.toObject(User.class);
+        LinearLayout linearLayout = view.findViewById(R.id.linerLyUserName);
+        TextView txtUserName = view.findViewById(R.id.txtUserName);
 
-                            users.add(user);
-                        }
-                        searchAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.d("Firestore", "No se encontraron posts.");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error al obtener los posts", e);
-                });
+        linearLayout.setVisibility(View.GONE);
 
-        CollectionReference postCollection = firestore.collection("posts");
-        postCollection.get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
+        Bundle bundle = getArguments();
+        ArrayList<String> listSeguidos = new ArrayList<>();
+        ArrayList<String> listSeguidores = new ArrayList<>();
+        String nombreUser="";
+        if (bundle != null) {
+            listSeguidos = bundle.getStringArrayList("ListSeguidos");
+            listSeguidores = bundle.getStringArrayList("ListSeguidores");
+            nombreUser = bundle.getString("nombreUser");
+        }
 
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            Post post = document.toObject(Post.class);
+        //String uid = firebaseAuth.getCurrentUser().getUid();
 
-                            posts.add(post);
-                        }
-                        postAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.d("Firestore", "No se encontraron posts.");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error al obtener los posts", e);
-                });
-        setUpRecyclerView(view);
+        if (listSeguidos != null && !listSeguidos.isEmpty()) {
+            getUsersByIdList(listSeguidos);
+            linearLayout.setVisibility(View.VISIBLE);
+            txtUserName.setText(nombreUser+" - Seguidores");
+            showbtn = true;
+        } else if (listSeguidores != null && !listSeguidores.isEmpty()) {
+            getUsersByIdList(listSeguidores);
+            linearLayout.setVisibility(View.VISIBLE);
+            txtUserName.setText(nombreUser+" - Seguidos");
+            showbtn = true;
+        } else {
+            getAllUsers();
+            getAllPosts();
+        }
+        setUpRecyclerView(view, showbtn);
         return view;
     }
 
-    private void setUpRecyclerView(View view) {
+
+    private void setUpRecyclerView(View view, boolean showbtn) {
         RecyclerView rvContentSearch = view.findViewById(R.id.rvContentSearch);
         rvContentSearch.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        searchAdapter = new SearchAdapter(users);
+        searchAdapter = new SearchAdapter(users,getContext(),showbtn);
         postAdapter = new PostAdapter(posts);
 
         rvContentSearch.setAdapter(searchAdapter);
 
         SearchView searchView = view.findViewById(R.id.searchView);
+        searchView.clearFocus();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if(query.startsWith("#")) {
                     postAdapter.filter(query.substring(1));
                 } else {
-                    searchAdapter.filter(query);
+                    //searchAdapter.filter(query);
                 }
                 return false;
             }
@@ -109,9 +111,62 @@ public class SearchFragment extends Fragment {
                     rvContentSearch.setAdapter(searchAdapter);
                     searchAdapter.filter(text);
                 }
-                return false;
+                return true;
             }
         });
+    }
 
+    private void getAllUsers() {
+        firestore.collection("users").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            User user = document.toObject(User.class);
+                            users.add(user);
+                        }
+                        searchAdapter.notifyDataSetChanged(); // Asegúrate de inicializar el adaptador
+                    } else {
+                        Log.d("Firestore", "No se encontraron usuarios.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al obtener los usuarios", e);
+                });
+    }
+
+    private void getUsersByIdList(List<String> userIdList) {
+        firestore.collection("users").whereIn("id", userIdList).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            User user = document.toObject(User.class);
+                            users.add(user);
+                        }
+                        searchAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.d("Firestore", "No se encontraron usuarios con los IDs proporcionados.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al obtener usuarios por lista de IDs", e);
+                });
+    }
+
+    private void getAllPosts() {
+        firestore.collection("posts").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            Post post = document.toObject(Post.class);
+                            posts.add(post);
+                        }
+                        postAdapter.notifyDataSetChanged(); // Asegúrate de inicializar el adaptador
+                    } else {
+                        Log.d("Firestore", "No se encontraron posts.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al obtener los posts", e);
+                });
     }
 }

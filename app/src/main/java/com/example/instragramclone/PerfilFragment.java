@@ -21,9 +21,11 @@ import android.widget.Toast;
 
 import com.example.instragramclone.activity.LoginActivity;
 import com.example.instragramclone.adapter.MyPostAdapter;
+import com.example.instragramclone.clases.Follow;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -51,10 +53,13 @@ public class PerfilFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_perfil, container, false);
 
 
-        ImageView userImage = view.findViewById(R.id.userImage);
-        TextView userName = view.findViewById(R.id.userName);
-        TextView fullName = view.findViewById(R.id.fullName);
-        TextView postNum = view.findViewById(R.id.postsCount);
+        ImageView userImage = view.findViewById(R.id.myUserImage);
+        TextView userName = view.findViewById(R.id.myUserName);
+        TextView fullName = view.findViewById(R.id.myfullName);
+        TextView postNum = view.findViewById(R.id.myPostsCount);
+        //
+        TextView numFollowers = view.findViewById(R.id.myfollowersCount);
+        TextView numFollowing = view.findViewById(R.id.myfollowingCount);
 
         Button btnLogOut = view.findViewById(R.id.btnLogOut);
 
@@ -90,7 +95,7 @@ public class PerfilFragment extends Fragment {
         });
 
         // Posts //
-        RecyclerView rvPosts = view.findViewById(R.id.rvPostsUserP);
+        RecyclerView rvPosts = view.findViewById(R.id.myrvPostsUserP);
         rvPosts.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),3);
         rvPosts.setLayoutManager(gridLayoutManager);
@@ -120,7 +125,7 @@ public class PerfilFragment extends Fragment {
                     }
                 });
 
-
+        numFollows(uid, numFollowers,numFollowing);
 
         btnLogOut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,5 +136,29 @@ public class PerfilFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    private void numFollows(String iduser, TextView txtnumFollowes, TextView txtnumFollowing){
+        DocumentReference followRef = firestore.collection("follows").document(iduser);
+        followRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()){
+                    Follow follow = documentSnapshot.toObject(Follow.class);
+                    if(follow != null){
+                        int numFollower = follow.getFollowers().size();
+                        txtnumFollowes.setText(String.valueOf(numFollower));
+                        int numFollowing = follow.getFollowing().size();
+                        txtnumFollowing.setText(String.valueOf(numFollowing));
+                    }
+                }else {
+                    Log.d("Firestore","Documento no encontrado");
+                }
+            }
+        });
     }
 }

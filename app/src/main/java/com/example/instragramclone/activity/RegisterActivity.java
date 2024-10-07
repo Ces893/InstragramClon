@@ -1,6 +1,7 @@
 package com.example.instragramclone.activity;
 
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.instragramclone.MainActivity;
 import com.example.instragramclone.R;
+import com.example.instragramclone.clases.Follow;
 import com.example.instragramclone.clases.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -96,9 +98,25 @@ public class RegisterActivity extends AppCompatActivity {
                             });
 
                             String uid = firebaseAuth.getCurrentUser().getUid();
-                            User user = new User(userN,email,pass,nombre,"https://firebasestorage.googleapis.com/v0/b/instagramclone-21e5f.appspot.com/o/defaultuserIMG.jpg?alt=media&token=da6edbe3-c0d0-45c9-877e-073f402ddbaf","");
+                            User user = new User(uid,userN,email,pass,nombre,"https://firebasestorage.googleapis.com/v0/b/instagramclone-21e5f.appspot.com/o/defaultuserIMG.jpg?alt=media&token=da6edbe3-c0d0-45c9-877e-073f402ddbaf","");
                             DocumentReference documentReference = firestore.collection("users").document(uid);
                             documentReference.set(user);
+
+                            Follow follow = new Follow(uid);
+                            firestore.collection("follows").document(uid)
+                                    .set(follow)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d("Follow","Clase Follow Creada");
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w("Follow","Error",e);
+                                        }
+                                    });
                         }
                         else{
                             Toast.makeText(RegisterActivity.this,"Error", Toast.LENGTH_SHORT).show();

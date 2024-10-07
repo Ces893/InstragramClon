@@ -33,7 +33,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:id="@+id/txIdUser"/>
-    </RelativeLayout>
+        </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvAllPostUser"

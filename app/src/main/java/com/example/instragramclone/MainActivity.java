@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, CreatePostActivity.class);
                     startActivity(intent);
                 }else if(itemId == R.id.perfil){
-                    loadFragment(new PerfilFragment(), false);
+                    loadFragment(new UserPerfilFragment(), false);
                 }
 
                 return true;
@@ -70,4 +70,6 @@ public class MainActivity extends AppCompatActivity {
         }
         fragmentTransaction.commit();
     }
+
+
 }
