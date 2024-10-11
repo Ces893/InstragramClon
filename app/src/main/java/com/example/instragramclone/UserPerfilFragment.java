@@ -29,6 +29,7 @@ import com.example.instragramclone.clases.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -73,6 +74,7 @@ public class UserPerfilFragment extends Fragment {
         //
         LinearLayout linearLySeguidores = view.findViewById(R.id.linelySeguidores);
         LinearLayout linearLySeguidos = view.findViewById(R.id.linerlySeguidos);
+        ImageView imgBack = view.findViewById(R.id.imgBackPer);
 
         firestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
@@ -93,6 +95,7 @@ public class UserPerfilFragment extends Fragment {
             btnLogOut.setVisibility(view.VISIBLE);
             btnEdit.setVisibility(View.VISIBLE);
             btnCompartir.setVisibility(View.VISIBLE);
+            imgBack.setVisibility(view.GONE);
             btnFollow = view.findViewById(R.id.btnFollow);
             btnFollow.setVisibility(view.GONE);
         }else {
@@ -163,15 +166,16 @@ public class UserPerfilFragment extends Fragment {
 
 
         //
-        loEstaSiguiendo(uid, userId);
+        //loEstaSiguiendo(uid, userId);
         numFollows(userId, numFollowers,numFollowing);
 
 
         String userFollow = userId;
+        FollowingUsers(uid, userFollow);
         btnFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FollowingUsers(uid, userFollow);
+                //FollowingUsers(uid, userFollow);
             }
         });
 
@@ -213,6 +217,15 @@ public class UserPerfilFragment extends Fragment {
                 //finish();
             }
         });
+
+        imgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getFragmentManager() != null) {
+                    getFragmentManager().popBackStack();
+                }
+            }
+        });
         return view;
     }
 
@@ -235,58 +248,79 @@ public class UserPerfilFragment extends Fragment {
     }
 
     private void FollowingUsers(String uid, String userId){
-        DocumentReference loginUserFollow = firestore.collection("follows").document(uid);
-        DocumentReference userToFollow = firestore.collection("follows").document(userId);
+        CollectionReference followCollection = firestore.collection("follows");
+        followCollection
+                .whereEqualTo("userId",uid)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.e("FirestoreError", "Error al obtener los datos: ", e);
+                        return;
+                    }
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot logUserFollowDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        Follow logUserFollow = logUserFollowDoc.toObject(Follow.class);
 
-        if (btnFollow.getText().toString().equals("Seguir")) {
-            // Añadir a la lista de "following" del usuario logeado
-            loginUserFollow.update("following", FieldValue.arrayUnion(userId))
-                    .addOnSuccessListener(aVoid -> {
-                        // Añadir a la lista de "followers" del usuario seguido
-                        userToFollow.update("followers", FieldValue.arrayUnion(uid))
-                                .addOnSuccessListener(aVoid1 -> {
-                                    btnFollow.setText("Siguiendo");
-                                })
-                                .addOnFailureListener(e -> Log.e("FirestoreError", "Error al agregar seguidor: ", e));
-                    })
-                    .addOnFailureListener(e -> Log.e("FirestoreError", "Error al seguir al usuario: ", e));
+                        // Verificar si ya sigue al usuario
+                        if (logUserFollow != null && logUserFollow.getFollowing().contains(userId)) {
+                            btnFollow.setText("Siguiendo");
+                        } else {
+                            btnFollow.setText("Seguir");
+                        }
 
-        } else {
-            // Eliminar de la lista de "following" del usuario logeado
-            loginUserFollow.update("following", FieldValue.arrayRemove(userId))
-                    .addOnSuccessListener(aVoid -> {
-                        // Eliminar de la lista de "followers" del usuario seguido
-                        userToFollow.update("followers", FieldValue.arrayRemove(uid))
-                                .addOnSuccessListener(aVoid1 -> {
-                                    btnFollow.setText("Seguir");
-                                })
-                                .addOnFailureListener(e -> Log.e("FirestoreError", "Error al eliminar seguidor: ", e));
-                    })
-                    .addOnFailureListener(e -> Log.e("FirestoreError", "Error al dejar de seguir: ", e));
-        }
+                        // Cambiar el estado del botón al hacer clic
+                        btnFollow.setOnClickListener(v -> {
+                            // Obtener la referencia del usuario a seguir
+                            firestore.collection("follows")
+                                    .whereEqualTo("userId", userId)
+                                    .get()
+                                    .addOnSuccessListener(querySnapshot -> {
+                                        if (!querySnapshot.isEmpty()) {
+                                            DocumentSnapshot userToFollowDoc = querySnapshot.getDocuments().get(0);
+                                            DocumentReference logUserFollowRef = logUserFollowDoc.getReference();
+                                            DocumentReference userToFollowRef = userToFollowDoc.getReference();
+
+                                            if (btnFollow.getText().toString().equals("Seguir")) {
+                                                // Añadir al usuario logeado a la lista de following y followers
+                                                logUserFollowRef.update("following", FieldValue.arrayUnion(userId));
+                                                userToFollowRef.update("followers", FieldValue.arrayUnion(uid))
+                                                        .addOnSuccessListener(aVoid -> btnFollow.setText("Siguiendo"))
+                                                        .addOnFailureListener(e2 -> Log.e("FirestoreError", "Error al seguir al usuario: ", e2));
+                                            } else {
+                                                // Eliminar al usuario logeado de la lista de following y followers
+                                                logUserFollowRef.update("following", FieldValue.arrayRemove(userId));
+                                                userToFollowRef.update("followers", FieldValue.arrayRemove(uid))
+                                                        .addOnSuccessListener(aVoid -> btnFollow.setText("Seguir"))
+                                                        .addOnFailureListener(e2 -> Log.e("FirestoreError", "Error al dejar de seguir al usuario: ", e2));
+                                            }
+                                        }
+                                    });
+                        });
+                    }
+                });
     }
 
     private void numFollows(String iduser, TextView txtnumFollowes, TextView txtnumFollowing){
-        DocumentReference followRef = firestore.collection("follows").document(iduser);
-        followRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (documentSnapshot != null && documentSnapshot.exists()){
-                    follow = documentSnapshot.toObject(Follow.class);
-                    if(follow != null){
-                        int numFollower = follow.getFollowers().size();
-                        txtnumFollowes.setText(String.valueOf(numFollower));
-                        int numFollowing = follow.getFollowing().size();
-                        txtnumFollowing.setText(String.valueOf(numFollowing));
+        CollectionReference followCollection = firestore.collection("follows");
+
+        followCollection.whereEqualTo("userId", iduser) // Filtrar por el ID del usuario
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                }else {
-                    Log.d("Firestore","Documento no encontrado");
-                }
-            }
-        });
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        for (QueryDocumentSnapshot document : querySnapshot) {
+                            follow = document.toObject(Follow.class);
+                            if (follow != null) {
+                                int numFollower = follow.getFollowers().size();
+                                txtnumFollowes.setText(String.valueOf(numFollower));
+                                int numFollowing = follow.getFollowing().size();
+                                txtnumFollowing.setText(String.valueOf(numFollowing));
+                            }
+                        }
+                    } else {
+                        Log.d("Firestore", "No se encontraron documentos");
+                    }
+                });
     }
 }

@@ -35,13 +35,11 @@ public class AllMyPostsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_all_my_posts, container, false);
 
-        TextView txIdUser = view.findViewById(R.id.txIdUser);
         Bundle bundle = getArguments();
         String userId = null;
         if (bundle != null) {
             userId = bundle.getString("userId");
         }
-        //txIdUser.setText(userId);
 
         firestore = FirebaseFirestore.getInstance();
 

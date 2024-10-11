@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -47,6 +48,7 @@ public class SearchFragment extends Fragment {
         TextView txtUserName = view.findViewById(R.id.txtUserName);
 
         linearLayout.setVisibility(View.GONE);
+        ImageView imgback = view.findViewById(R.id.imgVback);
 
         Bundle bundle = getArguments();
         ArrayList<String> listSeguidos = new ArrayList<>();
@@ -57,8 +59,6 @@ public class SearchFragment extends Fragment {
             listSeguidores = bundle.getStringArrayList("ListSeguidores");
             nombreUser = bundle.getString("nombreUser");
         }
-
-        //String uid = firebaseAuth.getCurrentUser().getUid();
 
         if (listSeguidos != null && !listSeguidos.isEmpty()) {
             getUsersByIdList(listSeguidos);
@@ -75,6 +75,15 @@ public class SearchFragment extends Fragment {
             getAllPosts();
         }
         setUpRecyclerView(view, showbtn);
+
+        imgback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getFragmentManager() != null) {
+                    getFragmentManager().popBackStack();
+                }
+            }
+        });
         return view;
     }
 
@@ -96,7 +105,7 @@ public class SearchFragment extends Fragment {
                 if(query.startsWith("#")) {
                     postAdapter.filter(query.substring(1));
                 } else {
-                    //searchAdapter.filter(query);
+                    searchAdapter.filter(query);
                 }
                 return false;
             }
@@ -138,10 +147,12 @@ public class SearchFragment extends Fragment {
         firestore.collection("users").whereIn("id", userIdList).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
+                        List<User> userList = new ArrayList<>();
                         for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                             User user = document.toObject(User.class);
-                            users.add(user);
+                            userList.add(user);
                         }
+                        searchAdapter.updateUsers(userList);
                         searchAdapter.notifyDataSetChanged();
                     } else {
                         Log.d("Firestore", "No se encontraron usuarios con los IDs proporcionados.");

@@ -38,6 +38,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         this.showbtn = showbtn;
     }
 
+    public void updateUsers(List<User> newUsers) {
+        this.data.clear();
+        this.data.addAll(newUsers);
+        this.filterUser.clear();
+        this.filterUser.addAll(newUsers); // Actualizar filterUser para que tenga todos los usuarios
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public SearchAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -89,7 +97,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     public void filter(String busqueda){
         filterUser.clear();
         if(busqueda.isEmpty()){
-            filterUser.addAll(data);
+            //filterUser.addAll(data);
         }else {
             for(User user : data){
                 if(user.userName.toLowerCase().contains(busqueda.toLowerCase())){

@@ -7,6 +7,7 @@
     tools:context=".UserPerfilFragment">
 
     <LinearLayout
+        android:id="@+id/linerLyEncabezado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -16,6 +17,7 @@
             android:layout_height="wrap_content">
 
             <ImageView
+                android:id="@+id/imgBackPer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
@@ -218,7 +220,7 @@
             android:layout_marginEnd="8dp"
             android:backgroundTint="#14A7F0"
             android:padding="10dp"
-            android:text="Follow"
+            android:text="Seguir"
             android:textColor="#000000" />
 
     </LinearLayout>

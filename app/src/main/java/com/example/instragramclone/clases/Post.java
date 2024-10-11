@@ -8,20 +8,16 @@ public class Post {
     public String userId;
     public String imgUrl;
     public String description;
-    public int likeCount;
-    public int commentsCount;
     public Date publicacionDate;
     public String etiqueta;
 
     public Post(){}
 
-    public Post(String postId,String user, String description, int likeCount, int commentsCount, String imgUrl, String etiqueta) {
+    public Post(String postId,String user, String description, String imgUrl, String etiqueta) {
         this.postId = postId;
         this.userId = user;
         this.imgUrl = imgUrl;
         this.description = description;
-        this.likeCount = likeCount;
-        this.commentsCount = commentsCount;
         this.publicacionDate = new Date();
         this.etiqueta = etiqueta;
     }
@@ -56,22 +52,6 @@ public class Post {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getLikeCount() {
-        return likeCount;
-    }
-
-    public void setLikeCount(int likeCount) {
-        this.likeCount = likeCount;
-    }
-
-    public int getCommentsCount() {
-        return commentsCount;
-    }
-
-    public void setCommentsCount(int commentsCount) {
-        this.commentsCount = commentsCount;
     }
 
     public Date getPublicacionDate() {

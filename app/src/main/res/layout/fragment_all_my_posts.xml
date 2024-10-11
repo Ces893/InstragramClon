@@ -31,8 +31,7 @@
                 android:layout_marginStart="50dp"
                 android:layout_centerVertical="true"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:id="@+id/txIdUser"/>
+                android:textStyle="bold" />
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView

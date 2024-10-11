@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,18 +17,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instragramclone.R;
 import com.example.instragramclone.activity.ComentsActivity;
+import com.example.instragramclone.clases.Like;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,6 +41,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Post> filteredData;
     private List<Post> data;
     FirebaseFirestore firestore;
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     public PostAdapter(List<Post> data) {
         this.data = data;  // Guarda la lista original
@@ -81,8 +87,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         String formatDate = dateFormat.format(item.publicacionDate);
 
         userpost.setText(item.userId);
-        contMegusta.setText(""+item.likeCount);
-        contComet.setText(Integer.toString(item.commentsCount));
         descrip.setText(item.description);
         hora.setText("Publicado el "+formatDate);
 
@@ -92,8 +96,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 .error(R.drawable.ic_launcher_background) // Imagen si hay error
                 .into(imgPost); // ImageView donde se mostrará la imagen
 
-        String uid = item.userId;
-        DocumentReference documentReference = firestore.collection("users").document(uid);
+        String userId = item.userId;
+        DocumentReference documentReference = firestore.collection("users").document(userId);
         documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
@@ -113,15 +117,137 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         });
 
 
-        ImageButton imgButton = view.findViewById(R.id.bottomComentario);
-        imgButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton btnComments = view.findViewById(R.id.bottomComentario);
+        btnComments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), ComentsActivity.class);
                 view.getContext().startActivity(intent);
             }
         });
+
+        String uid = firebaseAuth.getCurrentUser().getUid();
+        ImageButton btnLike = view.findViewById(R.id.bottomMeGusta);
+
+        //verificarLike(item.getPostId(),uid,btnLike);
+        numLikes(item.getPostId(),contMegusta);
+        agregarLike(item.getPostId(),uid, btnLike);
     }
+
+    private void verificarLike(String postId, String uid, ImageButton btnLike) {
+        CollectionReference likesCollection = firestore.collection("likes");
+
+        likesCollection.whereEqualTo("postId", postId)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.w("FirestoreError", "Error al verificar los likes", e);
+                        return;
+                    }
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Obtener el documento de likes
+                        DocumentSnapshot likeDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        Like like = likeDoc.toObject(Like.class);
+
+                        if (like != null) {
+                            // Si el usuario ya dio like, cambiar el ícono a "liked"
+                            if (like.getLikersUser().contains(uid)) {
+                                btnLike.setImageResource(R.drawable.likeactive);  // Icono de "like activo"
+                            } else {
+                                // Cambiar a "like inactivo"
+                                btnLike.setImageResource(R.drawable.ic_outline_favorite_border_24);  // Icono de "like inactivo"
+                            }
+                        }
+                    } else {
+                        // Si no existe el documento de likes, cambiar a "like inactivo"
+                        btnLike.setImageResource(R.drawable.ic_outline_favorite_border_24);
+                    }
+                });
+    }
+
+    private void agregarLike(String postId, String uid, ImageButton btnLike) {
+        CollectionReference likesCollection = firestore.collection("likes");
+
+        likesCollection.whereEqualTo("postId", postId)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.e("FirestoreError", "Error al obtener likes: ", e);
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot likeDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        Like like = likeDoc.toObject(Like.class);
+
+                        if (like != null) {
+                            DocumentReference likeRef = likeDoc.getReference();
+
+                            // Configura el botón según si el usuario ya ha dado like
+                            if (like.getLikersUser().contains(uid)) {
+                                // El usuario ya dio like
+                                btnLike.setImageResource(R.drawable.likeactive);  // Cambia a "like activo"
+
+                                // Al hacer clic, quitar el like
+                                btnLike.setOnClickListener(v -> {
+                                    likeRef.update("likersUser", FieldValue.arrayRemove(uid))
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Actualización automática de UI
+                                                btnLike.setImageResource(R.drawable.ic_outline_favorite_border_24);  // Cambia a "like inactivo"
+                                            })
+                                            .addOnFailureListener(e1 -> {
+                                                Log.e("FirestoreError", "Error al quitar like: ", e1);
+                                            });
+                                });
+                            } else {
+                                // El usuario no dio like
+                                btnLike.setImageResource(R.drawable.ic_outline_favorite_border_24);  // Cambia a "like inactivo"
+
+                                // Al hacer clic, agregar el like
+                                btnLike.setOnClickListener(v -> {
+                                    likeRef.update("likersUser", FieldValue.arrayUnion(uid))
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Actualización automática de UI
+                                                btnLike.setImageResource(R.drawable.likeactive);  // Cambia a "like activo"
+                                            })
+                                            .addOnFailureListener(e1 -> {
+                                                Log.e("FirestoreError", "Error al agregar like: ", e1);
+                                            });
+                                });
+                            }
+                        }
+                    } else {
+                        // Si no hay documentos de likes, establecer el botón como inactivo
+                        btnLike.setImageResource(R.drawable.ic_outline_favorite_border_24);
+                    }
+                });
+    }
+
+    private void numLikes(String postId, TextView txtLikeCount) {
+        CollectionReference likesCollection = firestore.collection("likes");
+
+        likesCollection.whereEqualTo("postId", postId)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.e("FirestoreError", "Error al obtener likes: ", e);
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot likeDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        Like like = likeDoc.toObject(Like.class);
+
+                        if (like != null) {
+                            List<String> likersUser = like.getLikersUser();
+                            txtLikeCount.setText(String.valueOf(likersUser.size()));
+                        } else {
+                            txtLikeCount.setText("0");
+                        }
+                    } else {
+                        txtLikeCount.setText("0");
+                    }
+                });
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     public void filter(String  query){

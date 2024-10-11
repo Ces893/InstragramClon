@@ -26,6 +26,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.instragramclone.R;
+import com.example.instragramclone.clases.Like;
 import com.example.instragramclone.clases.Post;
 import com.example.instragramclone.clases.User;
 import com.example.instragramclone.service.ApiService;
@@ -71,7 +72,6 @@ public class CreatePostActivity extends AppCompatActivity {
             return insets;
         });
 
-        //FirebaseApp.initializeApp(this);
         setUpBtnChoosePhoto();
         setUpBtnTakePhoto();
 
@@ -170,11 +170,11 @@ public class CreatePostActivity extends AppCompatActivity {
 
         String uid = firebaseAuth.getCurrentUser().getUid();
 
-        CollectionReference postCollection = firestore.collection("posts");
-        //Post(String id, String user, String description, int likeCount, int commentsCount, String imgUrl, String etiqueta)
+        //CollectionReference postCollection = firestore.collection("posts");
+        //Post(String id, String user, String description, String imgUrl, String etiqueta)
         DocumentReference newPostRef = firestore.collection("posts").document();
         String postId = newPostRef.getId();
-        Post post = new Post(postId,uid, descrpcion, 0, 0, urlImagen, "#"+etiqueta);
+        Post post = new Post(postId,uid, descrpcion, urlImagen, "#"+etiqueta);
 
         newPostRef.set(post)
                 .addOnSuccessListener(aVoid -> {
@@ -182,6 +182,17 @@ public class CreatePostActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.w("Firestore", "Error al crear el post", e);
+                });
+
+        //
+        DocumentReference likeRef = firestore.collection("likes").document();
+        String likeId = likeRef.getId();
+        Like like = new Like(likeId,postId);
+        likeRef.set(like) .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Like creado con ID: " +likeId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error al crear el like", e);
                 });
     }
 

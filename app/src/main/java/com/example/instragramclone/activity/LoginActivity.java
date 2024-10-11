@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                             }else {
-                                Toast.makeText(LoginActivity.this,"Verifice su Correo",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this,"Verifique su Correo",Toast.LENGTH_SHORT).show();
                             }
 
                         }else {

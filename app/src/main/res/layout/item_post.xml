@@ -72,6 +72,7 @@
                 android:layout_marginStart="2dp"
                 android:background="@color/white"
                 android:scaleType="centerCrop"
+                android:clickable="true"
                 android:src="@drawable/ic_outline_favorite_border_24" />
 
             <TextView

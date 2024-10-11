@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Follow {
-    private String userId;
-    private List<String> followers;
-    private List<String> following;
+    public String id;
+    public String userId;
+    public List<String> followers;
+    public List<String> following;
 
     public Follow() {
         this.followers = new ArrayList<>();
         this.following = new ArrayList<>();
     }
 
-    public Follow(String userId) {
+    public Follow(String id,String userId) {
+        this.id = id;
         this.userId = userId;
         this.followers = new ArrayList<>();
         this.following = new ArrayList<>();

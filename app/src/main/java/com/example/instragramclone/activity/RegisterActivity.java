@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.instragramclone.MainActivity;
 import com.example.instragramclone.R;
 import com.example.instragramclone.clases.Follow;
+import com.example.instragramclone.clases.Like;
 import com.example.instragramclone.clases.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -85,7 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
                             firebaseUser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-                                    Toast.makeText(RegisterActivity.this,"Verifice su Correo", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RegisterActivity.this,"Verifique su Correo", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -102,20 +103,14 @@ public class RegisterActivity extends AppCompatActivity {
                             DocumentReference documentReference = firestore.collection("users").document(uid);
                             documentReference.set(user);
 
-                            Follow follow = new Follow(uid);
-                            firestore.collection("follows").document(uid)
-                                    .set(follow)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d("Follow","Clase Follow Creada");
-                                        }
+                            DocumentReference followRef = firestore.collection("follows").document();
+                            String followId = followRef.getId();
+                            Follow follow = new Follow(followId,uid);
+                            followRef.set(follow) .addOnSuccessListener(aVoid -> {
+                                        Log.d("Firestore", "Follow creado con ID: " +followId);
                                     })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w("Follow","Error",e);
-                                        }
+                                    .addOnFailureListener(e -> {
+                                        Log.w("Firestore", "Error al crear el Follow", e);
                                     });
                         }
                         else{

@@ -14,6 +14,9 @@ import com.example.instragramclone.MainActivity;
 import com.example.instragramclone.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.PersistentCacheSettings;
 
 public class InicioActivity extends AppCompatActivity {
 
@@ -31,6 +34,13 @@ public class InicioActivity extends AppCompatActivity {
         });
 
         firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings =
+                new FirebaseFirestoreSettings.Builder(firestore.getFirestoreSettings())
+                        // Usar caché persistente en disco (por defecto)
+                        .setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())
+                        .build();
+        firestore.setFirestoreSettings(settings);
 
         new CountDownTimer(1000,100){
 
