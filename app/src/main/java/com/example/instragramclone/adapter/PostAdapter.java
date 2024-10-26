@@ -57,6 +57,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         notifyDataSetChanged();
     }
 
+    public void addData(List<Post> newPosts) {
+        int startPosition = data.size();
+        data.addAll(newPosts);
+        filteredData.addAll(newPosts);
+        notifyItemRangeInserted(startPosition, newPosts.size());
+    }
+
     @NonNull
     @Override
     public PostAdapter.PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -247,7 +254,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     }
                 });
     }
-
 
     @SuppressLint("NotifyDataSetChanged")
     public void filter(String  query){
