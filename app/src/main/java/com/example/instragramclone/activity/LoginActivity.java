@@ -62,6 +62,11 @@ public class LoginActivity extends AppCompatActivity {
                 String email = etCorreoLog.getText().toString();
                 String pass = etPassLog.getText().toString();
 
+                if (email.isEmpty() || pass.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 firebaseAuth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -107,7 +112,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
     }

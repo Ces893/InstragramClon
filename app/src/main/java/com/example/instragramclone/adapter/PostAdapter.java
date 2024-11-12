@@ -83,7 +83,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         TextView userpost = view.findViewById(R.id.publicacion1user);
         TextView contMegusta = view.findViewById(R.id.countMegusta);
-        TextView contComet = view.findViewById(R.id.countComentarios);
         TextView descrip = view.findViewById(R.id.descripcionPost);
         TextView hora = view.findViewById(R.id.horaPost);
         TextView nombreUser = view.findViewById(R.id.nombreUsuario);

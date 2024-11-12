@@ -214,7 +214,7 @@ public class UserPerfilFragment extends Fragment {
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(getContext(), LoginActivity.class));
-                //finish();
+                getActivity().finish();
             }
         });
 

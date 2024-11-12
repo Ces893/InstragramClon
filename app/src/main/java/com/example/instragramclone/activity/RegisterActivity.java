@@ -70,11 +70,27 @@ public class RegisterActivity extends AppCompatActivity {
                 String userN = etUserName.getText().toString();
 
                 if(TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(nombre) || TextUtils.isEmpty(userN) || pass.length() < 6){
-                    etCorreo.setError("Correo es requerido");
-                    etPass.setError("Contraseña es requerido o Tiene que tener un minimo de 6 caracteres");
-                    etNombre.setError("Nombre es requerido");
-                    etUserName.setError("UserName es requerido"); //
+                    Toast.makeText(RegisterActivity.this,"Un campo esta vacio o requiere de algo en Especifico",Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                if(TextUtils.isEmpty(email)){
+                    etCorreo.setError("Correo es requerido");
+                    return;
+                }
+                if(TextUtils.isEmpty(pass) || pass.length() < 6){
+                    etPass.setError("Contraseña es requerido o Tiene que tener un minimo de 6 caracteres");
+                    return;
+                }
+                if(TextUtils.isEmpty(nombre)){
+                    etNombre.setError("Nombre es requerido");
+                    return;
+                }
+                if(TextUtils.isEmpty(userN)){
+                    etUserName.setError("UserName es requerido");
+                    return;
+                }
+
 
                 firebaseAuth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override

@@ -37,7 +37,7 @@ public class HomeFragment extends Fragment {
 
     private DocumentSnapshot lastVisible;  // Para rastrear el último documento cargado
     private boolean isLoading = false;     // Controla el estado de carga
-    private final int PAGE_SIZE = 4;      // Tamaño de página para la paginación
+    private final int PAGE_SIZE = 5;      // Tamaño de página para la paginación
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,96 +66,14 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        loadInitialPosts();  // Carga inicial
+        loadMorePosts();
         return view;
     }
 
-    private void loadInitialPosts() {
-        String uid = firebaseAuth.getCurrentUser().getUid();
-        CollectionReference followsCollection = firestore.collection("follows");
-
-        progressBar.setVisibility(View.VISIBLE); // Muestra el ProgressBar
-
-        followsCollection.whereEqualTo("userId", uid)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
-                        Follow follow = documentSnapshot.toObject(Follow.class);
-
-                        if (follow != null) {
-                            List<String> followingIds = follow.getFollowing();
-                            CollectionReference postCollection = firestore.collection("posts");
-
-                            if (followingIds.isEmpty()) {
-                                loadPublicityPosts(postCollection);
-                            } else {
-                                loadFollowingPosts(postCollection, followingIds);
-                            }
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error al obtener los datos del usuario en follows", e);
-                    progressBar.setVisibility(View.GONE); // Oculta el ProgressBar en caso de error
-                });
-    }
-
-    private void loadPublicityPosts(CollectionReference postCollection) {
-        postCollection.whereEqualTo("etiqueta", "#publicidad")
-                .orderBy("publicacionDate", Query.Direction.DESCENDING)
-                .limit(PAGE_SIZE)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<Post> postList = new ArrayList<>();
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            Post post = document.toObject(Post.class);
-                            postList.add(post);
-                        }
-                        lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                        adapter.setData(postList);
-                    }
-
-                    // Muestra el ProgressBar por un tiempo antes de ocultarlo
-                    new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 1000); // 1000 ms = 1 segundo
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error al obtener los posts de publicidad", e);
-                    progressBar.setVisibility(View.GONE); // Oculta el ProgressBar en caso de error
-                });
-    }
-
-    private void loadFollowingPosts(CollectionReference postCollection, List<String> followingIds) {
-        postCollection.whereIn("userId", followingIds)
-                .orderBy("publicacionDate", Query.Direction.DESCENDING)
-                .limit(PAGE_SIZE)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<Post> postList = new ArrayList<>();
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            Post post = document.toObject(Post.class);
-                            postList.add(post);
-                        }
-                        lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                        adapter.setData(postList);
-                    }
-
-                    // Muestra el ProgressBar por un tiempo antes de ocultarlo
-                    new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 1000); // 1000 ms = 1 segundo
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error al obtener los posts", e);
-                    progressBar.setVisibility(View.GONE); // Oculta el ProgressBar en caso de error
-                });
-    }
-
-
     private void loadMorePosts() {
-        if (isLoading || lastVisible == null) return;  // Si ya se está cargando o no hay más documentos, salir
+        if (isLoading) return;  // Evitar cargas dobles si ya se está cargando
 
-        isLoading = true;  // Marcamos que estamos cargando
+        isLoading = true;
         progressBar.setVisibility(View.VISIBLE);
 
         String uid = firebaseAuth.getCurrentUser().getUid();
@@ -172,69 +90,78 @@ public class HomeFragment extends Fragment {
                         CollectionReference postCollection = firestore.collection("posts");
 
                         if (followingIds.isEmpty()) {
-                            loadMorePublicityPosts(postCollection);  // Cargar más posts de publicidad
+                            loadPublicityPosts(postCollection);
                         } else {
-                            loadMoreFollowingPosts(postCollection, followingIds);  // Cargar más posts de seguidores
+                            loadFollowingPosts(postCollection, followingIds);
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    isLoading = false;  // Desmarcamos que estamos cargando en caso de error
+                    isLoading = false;
+                    new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 2000);
                     Log.w("Firestore", "Error al obtener los datos del usuario en follows", e);
-                    progressBar.setVisibility(View.GONE);
                 });
     }
 
-    private void loadMorePublicityPosts(CollectionReference postCollection) {
-        postCollection.whereEqualTo("etiqueta", "#publicidad")
-                .orderBy("publicacionDate", Query.Direction.DESCENDING)
-                .startAfter(lastVisible)
-                .limit(PAGE_SIZE)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<Post> postList = new ArrayList<>();
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            Post post = document.toObject(Post.class);
-                            postList.add(post);
-                        }
-                        lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                        adapter.addData(postList);
-                    }
-                    isLoading = false;  // Desmarcamos que estamos cargando
-                    progressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    isLoading = false;  // Desmarcamos que estamos cargando en caso de error
-                    Log.w("Firestore", "Error al cargar más posts de publicidad", e);
-                    progressBar.setVisibility(View.GONE);
-                });
+    private void loadPublicityPosts(CollectionReference postCollection) {
+        Query query = postCollection.whereEqualTo("etiqueta", "#publicidad")
+                .limit(PAGE_SIZE);
+
+        if (lastVisible != null) {  // Si no es la primera carga, usar paginación
+            query = query.startAfter(lastVisible);
+        }
+
+        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (!queryDocumentSnapshots.isEmpty()) {
+                List<Post> postList = new ArrayList<>();
+                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                    Post post = document.toObject(Post.class);
+                    postList.add(post);
+                }
+                lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                adapter.addData(postList);
+
+            } else {
+                Log.d("Pagination", "No more publicity posts to load");
+            }
+            isLoading = false;
+            new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 2000);
+        }).addOnFailureListener(e -> {
+            isLoading = false;
+            new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 2000);
+            Log.w("Firestore", "Error al cargar posts de publicidad", e);
+        });
     }
 
-    private void loadMoreFollowingPosts(CollectionReference postCollection, List<String> followingIds) {
-        postCollection.whereIn("userId", followingIds)
+    private void loadFollowingPosts(CollectionReference postCollection, List<String> followingIds) {
+        Query query = postCollection.whereIn("userId", followingIds)
                 .orderBy("publicacionDate", Query.Direction.DESCENDING)
-                .startAfter(lastVisible)
-                .limit(PAGE_SIZE)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<Post> postList = new ArrayList<>();
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            Post post = document.toObject(Post.class);
-                            postList.add(post);
-                        }
-                        lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                        adapter.addData(postList);
-                    }
-                    isLoading = false;  // Desmarcamos que estamos cargando
-                    progressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    isLoading = false;  // Desmarcamos que estamos cargando en caso de error
-                    Log.w("Firestore", "Error al cargar más posts de seguidores", e);
-                    progressBar.setVisibility(View.GONE);
-                });
+                .limit(PAGE_SIZE);
+
+        if (lastVisible != null) {  // Si no es la primera carga, usar paginación
+            query = query.startAfter(lastVisible);
+        }
+
+        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (!queryDocumentSnapshots.isEmpty()) {
+                List<Post> postList = new ArrayList<>();
+                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                    Post post = document.toObject(Post.class);
+                    postList.add(post);
+                }
+                lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                adapter.addData(postList);
+
+            } else {
+                Log.d("Pagination", "No more posts from following to load");
+            }
+            isLoading = false;
+            new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 2000);
+        }).addOnFailureListener(e -> {
+            isLoading = false;
+            new Handler().postDelayed(() -> progressBar.setVisibility(View.GONE), 2000);
+            Log.w("Firestore", "Error al cargar posts de seguidores", e);
+        });
     }
 }
 

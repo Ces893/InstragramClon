@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -80,19 +81,27 @@ public class CreatePostActivity extends AppCompatActivity {
         EditText tvDes = findViewById(R.id.tvDescripcion);
         EditText tvEtiqueta = findViewById(R.id.tvEtiqueta);
 
-
+        //tvDes.setText("Prueba 1");
+        //tvEtiqueta.setText("Wallpaper");
         btnSubir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(imageUri != null){
+                if(imageUri != null && !TextUtils.isEmpty(tvDes.getText().toString()) && !TextUtils.isEmpty(tvEtiqueta.getText().toString())){
                     subirImagenFirebase(imageUri, tvDes.getText().toString(),tvEtiqueta.getText().toString());
                     finish();
                 }else {
-                    Toast.makeText(CreatePostActivity.this,"Error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CreatePostActivity.this,"Error: Algun Campo se Encuentra Vacio", Toast.LENGTH_SHORT).show();
                 }
+//                for (int i = 1; i <= 3; i++) {
+//                    String descripcion = "Paisaje " + i;
+//                    enviarFireStore(
+//                            "https://firebasestorage.googleapis.com/v0/b/instagramclone-21e5f.appspot.com/o/1730263864220.jpg?alt=media&token=589b470a-a2d2-484c-a6e5-f4eee3aefc50",
+//                            descripcion,
+//                            tvEtiqueta.getText().toString()
+//                    );
+//                }
             }
         });
-
 
     }
 
