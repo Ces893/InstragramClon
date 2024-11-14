@@ -104,7 +104,6 @@ public class UserPerfilFragment extends Fragment {
             btnCompartir.setVisibility(View.GONE);
         }
 
-
         DocumentReference documentReference = firestore.collection("users").document(userId);
         documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -163,7 +162,6 @@ public class UserPerfilFragment extends Fragment {
                         }
                     }
                 });
-
 
         //
         //loEstaSiguiendo(uid, userId);
@@ -226,6 +224,15 @@ public class UserPerfilFragment extends Fragment {
                 }
             }
         });
+
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditPerfilFragment editPerfilFragment = new EditPerfilFragment();
+                ((FragmentActivity) getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, editPerfilFragment).addToBackStack(null).commit();
+            }
+        });
+
         return view;
     }
 

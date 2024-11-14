@@ -10,8 +10,6 @@ public class User {
     public String nombre;
     public String imgUser;
     public String bio;
-    //public List<String> usersFollowers;
-    //public List<String> usersFollowing;
 
     public User() {
     }

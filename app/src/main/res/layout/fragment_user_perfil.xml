@@ -189,6 +189,7 @@
             android:backgroundTint="#B0BEC5"
             android:padding="10dp"
             android:text="Editar perfil"
+            android:clickable="true"
             android:textColor="#000000" />
 
         <Button

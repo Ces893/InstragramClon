@@ -53,8 +53,6 @@
                     android:background="@drawable/roundimgbtn"
                     android:src="@drawable/outline_perm_media_24"
                     android:layout_toStartOf="@+id/btnTakePhoto"/>
-
-
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
