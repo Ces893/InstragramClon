@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.instragramclone.adapter.PostAdapter;
@@ -62,6 +63,18 @@ public class AllMyPostsFragment extends Fragment {
                         }
                     }
                 });
+
+        ImageView imgBack = view.findViewById(R.id.imgBackPost);
+
+        imgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getFragmentManager() != null) {
+                    getFragmentManager().popBackStack();
+                }
+            }
+        });
+
         setUpRecyclerView(view);
         return view;
     }

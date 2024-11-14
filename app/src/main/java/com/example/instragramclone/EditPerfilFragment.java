@@ -87,6 +87,17 @@ public class EditPerfilFragment extends Fragment {
                 }
             }
         });
+
+        ImageView imgBackEdit = view.findViewById(R.id.imgBackEdit);
+
+        imgBackEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getFragmentManager() != null) {
+                    getFragmentManager().popBackStack();
+                }
+            }
+        });
         return view;
     }
 
