@@ -195,11 +195,11 @@ public class UserPerfilFragment extends Fragment {
         linearLySeguidos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<String> listSeguidores = follow.getFollowing();
+                List<String> listSeguidos = follow.getFollowing();
                 String nombreUser = userName.getText().toString();
                 SearchFragment searchFragment = new SearchFragment();
                 Bundle bundle = new Bundle();
-                bundle.putStringArrayList("ListSeguidos", (ArrayList<String>) listSeguidores);
+                bundle.putStringArrayList("ListSeguidos", (ArrayList<String>) listSeguidos);
                 bundle.putString("nombreUser",nombreUser);
                 searchFragment.setArguments(bundle);
 

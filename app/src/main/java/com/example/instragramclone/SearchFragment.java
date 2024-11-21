@@ -63,12 +63,12 @@ public class SearchFragment extends Fragment {
         if (listSeguidos != null && !listSeguidos.isEmpty()) {
             getUsersByIdList(listSeguidos);
             linearLayout.setVisibility(View.VISIBLE);
-            txtUserName.setText(nombreUser+" - Seguidores");
+            txtUserName.setText(nombreUser+" - Seguidos");
             showbtn = true;
         } else if (listSeguidores != null && !listSeguidores.isEmpty()) {
             getUsersByIdList(listSeguidores);
             linearLayout.setVisibility(View.VISIBLE);
-            txtUserName.setText(nombreUser+" - Seguidos");
+            txtUserName.setText(nombreUser+" - Seguidores");
             showbtn = true;
         } else {
             getAllUsers();
